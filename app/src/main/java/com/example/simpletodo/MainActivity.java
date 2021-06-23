@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    //  the model
+    // Model
     List<String> items;
 
-    // Handle for GUI so we can add appropriate logic
+    // Handle for view
     Button btnAdd;
     EditText etItem;
     RecyclerView rvItems;
@@ -46,6 +46,10 @@ public class MainActivity extends AppCompatActivity {
         ItemsAdapter.OnLongClickListener onLongClickListener = new ItemsAdapter.OnLongClickListener() {
             @Override
             public void onItemLongClicked(int position) {
+                /*
+                    Delete the item using it's position, notify the adapter about the removal and toast the text to the screen
+                 */
+
                 // Delete the item from the model
                 items.remove(position);
                 // Notify the adapter
@@ -54,14 +58,25 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        itemsAdapter = new ItemsAdapter(items, onLongClickListener);
+        ItemsAdapter.OnClickListener onClickListener = new ItemsAdapter.OnClickListener() {
+            @Override
+            public void onItemClicked(int position) {
+                Toast.makeText(getApplicationContext(), "Item was clicked", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        itemsAdapter = new ItemsAdapter(items, onLongClickListener, onClickListener);
         rvItems.setAdapter(itemsAdapter);
         rvItems.setLayoutManager(new LinearLayoutManager(this));
 
-        // Listeners
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*
+                    Checks string to be added
+                    If it is not empty, add the string to the model, notify the adapter that an item is inserted set etText to "", show the toast and save items
+                    If the string is empty, toast that the string is empty and do nothing else
+                 */
                 String todoItem = etItem.getText().toString();
                 if(! todoItem.equals("") ) {
                     // Add item to the model
@@ -82,8 +97,10 @@ public class MainActivity extends AppCompatActivity {
         return new File(getFilesDir(), "data.txt");
     }
 
-    // Load items by reading each line of the data file
     private void loadItems() {
+        /*
+            Load items by reading each line of the data file
+         */
         try {
             items = new ArrayList<>(FileUtils.readLines(getDataFile(), Charset.defaultCharset()));
         } catch (IOException e) {
@@ -92,8 +109,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Saves items by writing them into the data file
     private void saveItems() {
+        /*
+            Saves items by writing them into the data file
+         */
         try {
             FileUtils.writeLines(getDataFile(), items);
         } catch (IOException e) {
